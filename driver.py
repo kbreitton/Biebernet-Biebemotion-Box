@@ -5,6 +5,25 @@ import subprocess
 import re
 import requests
 import os.path
+from argparse import ArgumentParser
+
+# **************************************
+# ***********Initialization*************
+# **************************************
+
+ap = ArgumentParser(description='Change LED lighting based on sexy Justin Bieber\'s tweets')
+
+ap.add_argument('--tweet',
+                type=str,
+                default='',
+                help='Manually simulate a tweet')
+
+ap.add_argument('--user',
+                type=str,
+                default='justinbieber',
+                help='Set to follow a different Twitter user')
+
+args = ap.parse_args()
 
 with open('api-keys.txt') as f:
     api_keys = f.read().splitlines()
@@ -14,8 +33,11 @@ api = twitter.Api(consumer_key = api_keys[0],
                   access_token_key = api_keys[2],
                   access_token_secret = api_keys[3])
 
-statuses = api.GetUserTimeline(screen_name='justinbieber')
+statuses = api.GetUserTimeline(screen_name=args.user)
 
+# ***************************************
+# ************Helper Functions***********
+# ***************************************
 
 def save_prev_state(text):
     with open('prev_state', 'w') as f:
@@ -36,9 +58,13 @@ def get_tweet():
         sys.exit()
 
 def play_sound(text):
-    cmd = ['espeak', '-ven+f2', '-k5', text, '&'] 
+    cmd = ['gtts-cli.py', text, '-o', 'temp.mp3']
+    cmd2 = ['mplayer', 'temp.mp3']
+    cmd3 = ['rm', 'temp.mp3'] 
     with open('/dev/null', 'w') as outfile:
-        subprocess.call(cmd, stderr=outfile)
+        subprocess.call(cmd, stdout=outfile)
+        subprocess.call(cmd2, stdout=outfile)
+        subprocess.call(cmd3, stdout=outfile)
 
 def get_sentiment(text):
     r = requests.post('http://text-processing.com/api/sentiment/', data = {'text': text}).json()
@@ -46,7 +72,10 @@ def get_sentiment(text):
 
 def first_time_run():
     cmd = ['./transitionLEDs']
-    tweet = get_tweet()
+    if not args.tweet:
+        tweet = get_tweet()
+    else:
+        tweet = args.tweet
     state = get_sentiment(tweet)
     if state == 'pos':
         cmd.append('initblue')
@@ -61,47 +90,40 @@ def first_time_run():
 
 def main():
     cmd = ['./transitionLEDs']
-    tweet = get_tweet()
+    if not args.tweet:
+        tweet = get_tweet()
+    else:
+        tweet = args.tweet
     curr_state = get_sentiment(tweet)
     prev_state = get_prev_state()
+
     if prev_state == 'pos' and curr_state == 'neg':
         cmd.append('blue2red')
-        subprocess.Popen(cmd)
-        play_sound('Bieber has tweeted' + tweet)
     elif prev_state == 'neg' and curr_state == 'pos':
         cmd.append('red2blue')
-        subprocess.Popen(cmd)
-        play_sound('Bieber has tweeted' + tweet)
     elif prev_state == 'pos' and curr_state == 'neutral':
         cmd.append('blue2white')
-        subprocess.Popen(cmd)
-        play_sound('Bieber has tweeted' + tweet)
     elif prev_state == 'neg' and curr_state == 'neutral':
         cmd.append('red2white')
-        subprocess.Popen(cmd)
-        play_sound('Bieber has tweeted' + tweet)
     elif prev_state == 'neutral' and curr_state == 'pos':
         cmd.append('white2blue')
-        subprocess.Popen(cmd)
-        play_sound('Bieber has tweeted' + tweet)
     elif prev_state == 'neutral' and curr_state == 'neg':
         cmd.append('white2red')
-        subprocess.Popen(cmd)
-        play_sound('Bieber has tweeted' + tweet)
     elif prev_state == 'pos' and curr_state == 'pos':
         cmd.append('blue2blue')
-        subprocess.Popen(cmd)
-        play_sound('No new Bieber tweets')
     elif prev_state == 'neg' and curr_state == 'neg':
         cmd.append('red2red')
-        subprocess.Popen(cmd)
-        play_sound('No new Bieber tweets')
     elif prev_state == 'neutral' and curr_state == 'neutral':
         cmd.append('white2white')
-        subprocess.Popen(cmd)
-        play_sound('No new Bieber tweets')
 
+    subprocess.Popen(cmd)
+    play_sound(tweet)
     save_prev_state(curr_state)
+
+
+# **********************************************
+# ********************Main**********************
+# **********************************************
 
 if __name__ == "__main__":
     if not os.path.isfile('prev_state'):
