@@ -26,4 +26,4 @@ cd path/to/Biebernet-Biebemotion-Box
 
 Edit your crontab (run `crontab -e`) to include the line `@hourly path/to/Biebernet-Biebemotion-Box/driver.py` to run hourly
 
-Finally hardware-wise, follow the [pin-out guide](http://wiringpi.com/pins/) from wiringPi and connect the LPD8806 strips over SPI to the Pi
+Finally hardware-wise, follow the [pin-out guide](http://wiringpi.com/pins/) from wiringPi and connect the [LPD8806](https://www.adafruit.com/products/306) strips over SPI to the Pi
