@@ -6,6 +6,7 @@ import re
 import requests
 import os.path
 from argparse import ArgumentParser
+import time
 
 # **************************************
 # ***********Initialization*************
@@ -22,6 +23,11 @@ ap.add_argument('--user',
                 type=str,
                 default='justinbieber',
                 help='Set to follow a different Twitter user')
+
+ap.add_argument('--gtts',
+                type=bool,
+                default=False,
+                help='Boolean whether to use Google Text-to-Speech (doesn\'t work if running automatically/periodically)') 
 
 args = ap.parse_args()
 
@@ -58,13 +64,19 @@ def get_tweet():
         sys.exit()
 
 def play_sound(text):
-    cmd = ['gtts-cli.py', text, '-o', 'temp.mp3']
-    cmd2 = ['mplayer', 'temp.mp3']
-    cmd3 = ['rm', 'temp.mp3'] 
-    with open('/dev/null', 'w') as outfile:
-        subprocess.call(cmd, stdout=outfile)
-        subprocess.call(cmd2, stdout=outfile)
-        subprocess.call(cmd3, stdout=outfile)
+    if not args.gtts:
+        cmd = ['espeak', '-ven+f2', '-k5', text, '&']
+        with open('/dev/null', 'w') as outfile:
+            subprocess.call(cmd, stderr=outfile)
+    else:
+        cmd = ['gtts-cli.py', text, '-o', 'temp.mp3']
+        cmd2 = ['mplayer', 'temp.mp3']
+        cmd3 = ['rm', 'temp.mp3'] 
+        with open('/dev/null', 'w') as outfile:
+            subprocess.call(cmd, stderr=outfile)
+            subprocess.call(cmd, stdout=outfile)
+            subprocess.call(cmd2, stdout=outfile)
+            subprocess.call(cmd3, stdout=outfile)
 
 def get_sentiment(text):
     r = requests.post('http://text-processing.com/api/sentiment/', data = {'text': text}).json()

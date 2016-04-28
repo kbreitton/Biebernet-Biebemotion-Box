@@ -4,7 +4,7 @@ Wrapping Twitter, natural language processing for sentiment analysis, and text-t
 # Dependencies
 You need to install [wiringPi](http://wiringpi.com/download-and-install/) to control the LEDs, and you need to have SPI enabled from the options when running `sudo raspi-config`
 
-[eSpeak](http://espeak.sourceforge.net/) is used for text-to-speech, which you can install by running `sudo apt-get install espeak`
+[eSpeak](http://espeak.sourceforge.net/) and [Google Text-to-Speech](https://pypi.python.org/pypi/gTTS/1.0.2) are used for text-to-speech (you can switch between them), and can be you installed by running `sudo apt-get install espeak` and `sudo pip install gTTS` respectively
 
 Make sure you have all your audio dependencies installed for text-to-speech to work by following this [guide](https://www.google.com/search?client=ubuntu&channel=fs&q=raspberry+pi+text+to+speech&ie=utf-8&oe=utf-8)
 
@@ -20,8 +20,8 @@ and run `chmod +x driver.py`
 
 Edit your crontab (run `crontab -e`) to include the following lines in order to have the program run at startup and hourly:
 ```
-@reboot cd ~/Biebernet-Biebemotion-Box && ./driver.py
-@hourly cd ~/Biebernet-Biebemotion-Box && ./driver.py
+@reboot cd ~/Biebernet-Biebemotion-Box/ && sleep 60 && ./driver.py 
+@hourly cd ~/Biebernet-Biebemotion-Box/ && sleep 60 && ./driver.py 
 ```
 
 Finally hardware-wise, follow the [pin-out guide](http://wiringpi.com/pins/) from wiringPi and connect the [LPD8806](https://www.adafruit.com/products/306) strips over SPI to the Pi
