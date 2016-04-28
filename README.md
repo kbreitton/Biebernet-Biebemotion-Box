@@ -18,12 +18,10 @@ For the Twitter API to work, you need to have proper authentication keys. You wi
 Run `make`
 and run `chmod +x driver.py`
 
-Edit your `~/.bashrc` file and at the end add these lines:
+Edit your crontab (run `crontab -e`) to include the following lines in order to have the program run at startup and hourly:
 ```
-cd path/to/Biebernet-Biebemotion-Box                                                                                                                                        
-./driver.py
+@reboot cd ~/Biebernet-Biebemotion-Box && ./driver.py
+@hourly cd ~/Biebernet-Biebemotion-Box && ./driver.py
 ```
-
-Edit your crontab (run `crontab -e`) to include the line `@hourly path/to/Biebernet-Biebemotion-Box/driver.py` to run hourly
 
 Finally hardware-wise, follow the [pin-out guide](http://wiringpi.com/pins/) from wiringPi and connect the [LPD8806](https://www.adafruit.com/products/306) strips over SPI to the Pi
