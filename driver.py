@@ -4,9 +4,7 @@ import sys
 import subprocess
 import re
 import requests
-
-curr_state = 'neutral'
-prev_state = 'neutral'
+import os.path
 
 with open('api-keys.txt') as f:
     api_keys = f.read().splitlines()
@@ -17,6 +15,15 @@ api = twitter.Api(consumer_key = api_keys[0],
                   access_token_secret = api_keys[3])
 
 statuses = api.GetUserTimeline(screen_name='justinbieber')
+
+
+def save_prev_state(text):
+    with open('prev_state', 'w') as f:
+        f.write(text)
+
+def get_prev_state():
+    with open('prev_state', 'r') as f:
+        return f.read()
 
 def remove_urls(text):
     return re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+','', text)
@@ -34,35 +41,70 @@ def play_sound(text):
         subprocess.call(cmd, stderr=outfile)
 
 def get_sentiment(text):
-    global curr_state
     r = requests.post('http://text-processing.com/api/sentiment/', data = {'text': text}).json()
-    curr_state = r["label"]
+    return r["label"]
+
+def first_time_run():
+    cmd = ['./transitionLEDs']
+    tweet = get_tweet()
+    state = get_sentiment(tweet)
+    if state == 'pos':
+        cmd.append('initblue')
+        subprocess.Popen(cmd)
+    elif state == 'neg':
+        cmd.append('initred')
+        subprocess.Popen(cmd)
+    elif state == 'neutral':
+        cmd.append('initwhite')
+        subprocess.Popen(cmd)
+    save_prev_state(state)
 
 def main():
-    global curr_state
-    global prev_state
-    cmd = ['transitionLEDs'];
+    cmd = ['./transitionLEDs']
     tweet = get_tweet()
-    get_sentiment(tweet)
+    curr_state = get_sentiment(tweet)
+    prev_state = get_prev_state()
     if prev_state == 'pos' and curr_state == 'neg':
-        subprocess.Popen(cmd.append('blue2red'))
-        prev_state = curr_state
+        cmd.append('blue2red')
+        subprocess.Popen(cmd)
+        play_sound('Bieber has tweeted' + tweet)
     elif prev_state == 'neg' and curr_state == 'pos':
-        subprocess.Popen(cmd.append('red2blue'))
-        prev_state = curr_state
+        cmd.append('red2blue')
+        subprocess.Popen(cmd)
+        play_sound('Bieber has tweeted' + tweet)
     elif prev_state == 'pos' and curr_state == 'neutral':
-        subprocess.Popen(cmd.append('blue2white'))
-        prev_state = curr_state
+        cmd.append('blue2white')
+        subprocess.Popen(cmd)
+        play_sound('Bieber has tweeted' + tweet)
     elif prev_state == 'neg' and curr_state == 'neutral':
-        subprocess.Popen(cmd.append('red2white'))
-        prev_state = curr_state
+        cmd.append('red2white')
+        subprocess.Popen(cmd)
+        play_sound('Bieber has tweeted' + tweet)
     elif prev_state == 'neutral' and curr_state == 'pos':
-        subprocess.Popen(cmd.append('white2blue'))
-        prev_state = curr_state
+        cmd.append('white2blue')
+        subprocess.Popen(cmd)
+        play_sound('Bieber has tweeted' + tweet)
     elif prev_state == 'neutral' and curr_state == 'neg':
-        subprocess.Popen(cmd.append('white2red'))
-        prev_state = curr_state
-    play_sound(tweet)
+        cmd.append('white2red')
+        subprocess.Popen(cmd)
+        play_sound('Bieber has tweeted' + tweet)
+    elif prev_state == 'pos' and curr_state == 'pos':
+        cmd.append('blue2blue')
+        subprocess.Popen(cmd)
+        play_sound('No new Bieber tweets')
+    elif prev_state == 'neg' and curr_state == 'neg':
+        cmd.append('red2red')
+        subprocess.Popen(cmd)
+        play_sound('No new Bieber tweets')
+    elif prev_state == 'neutral' and curr_state == 'neutral':
+        cmd.append('white2white')
+        subprocess.Popen(cmd)
+        play_sound('No new Bieber tweets')
+
+    save_prev_state(curr_state)
 
 if __name__ == "__main__":
-    main()
+    if not os.path.isfile('prev_state'):
+        first_time_run()
+    else:
+        main()
