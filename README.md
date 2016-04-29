@@ -1,5 +1,6 @@
 # Biebernet-Biebemotion-Box
 Wrapping Twitter, natural language processing for sentiment analysis, and text-to-speech APIs togther with code to control LEDs, every hour on the hour you can have Justin Bieber serenade you with his tweets -- with mood lighting to boot
+![oh so sexy bieber](http://kbreitton.com/wp-content/uploads/2016/04/bieber-box-gif.gif)
 
 # Dependencies
 You need to install [wiringPi](http://wiringpi.com/download-and-install/) to control the LEDs, and you need to have SPI enabled from the options when running `sudo raspi-config`
@@ -25,3 +26,6 @@ Edit your crontab (run `crontab -e`) to include the following lines in order to 
 ```
 
 Finally hardware-wise, follow the [pin-out guide](http://wiringpi.com/pins/) from wiringPi and connect the [LPD8806](https://www.adafruit.com/products/306) strips over SPI to the Pi
+
+# Manual Usage
+run `./driver.py` and use `./driver.py -h` to see help for how to manually control tweets, users to grab a tweet from, and whether to use a better text-to-speech synthesizer
