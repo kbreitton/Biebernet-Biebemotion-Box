@@ -1,4 +1,4 @@
-# Biebernet-Biebemotion-Box
+# Bieber-net Bieb-emotion Box
 Mood lighting driven by delicious Justin Bieber tweets -- wrapping together Twitter, natural language processing for sentiment analysis, and text-to-speech APIs with code to control LEDs, every hour on the hour you can have Justin Bieber serenade you with his tweets (or make up your own)
 
 ![oh so sexy bieber](http://kbreitton.com/wp-content/uploads/2016/04/bieber-box-gif-compressor.gif)
