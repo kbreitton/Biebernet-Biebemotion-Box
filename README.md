@@ -12,7 +12,7 @@ Make sure you have all your audio dependencies installed for text-to-speech to w
 
 Finally, the [python-twitter](https://github.com/bear/python-twitter) API needs to be installed, which can be done by running `sudo pip install python-twitter`
 
-No dependencies need to be installed for sentiment analysis, but for reference, (Text-Processing)[http://text-processing.com/docs/sentiment.html] is used via HTTP POST.
+No dependencies need to be installed for sentiment analysis, but for reference, [Text-Processing](http://text-processing.com/docs/sentiment.html) is used via HTTP POST.
 
 # Installation and Setup
 Clone this repo using `git clone git@github.com:kbreitton/Biebernet-Biebemotion-Box.git`
